@@ -1,0 +1,102 @@
+//@version=5
+indicator("NXS Obsidian HUD [4-Row]", overlay=true)
+
+// ─── HUD Layout & Style Settings ───
+grp_style = "HUD Position & Appearance"
+pos_input = input.string("Middle Center", "HUD Position", 
+     options=["Middle Center", "Top Center", "Bottom Center", "Top Right", "Middle Right", "Bottom Right", "Top Left", "Middle Left", "Bottom Left"], 
+     group=grp_style)
+txt_size_input = input.string("Normal", "Text Size", 
+     options=["Tiny", "Small", "Normal", "Large", "Huge"], 
+     group=grp_style)
+txt_align_input = input.string("Center", "Text Alignment", 
+     options=["Left", "Center", "Right"], 
+     group=grp_style)
+
+bg_color     = input.color(color.new(#0a0a0c, 15), "Background Color", group=grp_style)
+border_color = input.color(color.new(#2a2e39, 0), "Border Color", group=grp_style)
+border_width = input.int(1, "Border Width", minval=0, maxval=5, group=grp_style)
+
+// ─── 4-Row Text & Color Settings ───
+grp_rows = "HUD Text Rows (Leave blank to hide row)"
+
+show_r1 = input.bool(true, "", inline="r1", group=grp_rows)
+text_r1 = input.string("1. LOCK THE FRONT DOOR (3-SECOND STOP)", "Row 1", inline="r1", group=grp_rows)
+col_r1  = input.color(color.new(#ff4d4d, 0), "", inline="r1", group=grp_rows)
+
+show_r2 = input.bool(true, "", inline="r2", group=grp_rows)
+text_r2 = input.string("2. $1,000 WORKBENCH — SWEEP SURPLUS NIGHTLY", "Row 2", inline="r2", group=grp_rows)
+col_r2  = input.color(color.new(#e0e3eb, 0), "", inline="r2", group=grp_rows)
+
+show_r3 = input.bool(true, "", inline="r3", group=grp_rows)
+text_r3 = input.string("3. ASSUME THIS TRADE FAILS BEFORE CLICKING", "Row 3", inline="r3", group=grp_rows)
+col_r3  = input.color(color.new(#e0e3eb, 0), "", inline="r3", group=grp_rows)
+
+show_r4 = input.bool(true, "", inline="r4", group=grp_rows)
+text_r4 = input.string("4. IT IS EITHER A CLEAN BREAK OR IT IS NOT", "Row 4", inline="r4", group=grp_rows)
+col_r4  = input.color(color.new(#00e676, 0), "", inline="r4", group=grp_rows)
+
+// ─── Helper Mappings ───
+get_pos(p) =>
+    switch p
+        "Middle Center" => position.middle_center
+        "Top Center"    => position.top_center
+        "Bottom Center" => position.bottom_center
+        "Top Right"     => position.top_right
+        "Middle Right"  => position.middle_right
+        "Bottom Right"  => position.bottom_right
+        "Top Left"      => position.top_left
+        "Middle Left"   => position.middle_left
+        "Bottom Left"   => position.bottom_left
+        => position.middle_center
+
+get_size(s) =>
+    switch s
+        "Tiny"   => size.tiny
+        "Small"  => size.small
+        "Normal" => size.normal
+        "Large"  => size.large
+        "Huge"   => size.huge
+        => size.normal
+
+get_align(a) =>
+    switch a
+        "Left"   => text.align_left
+        "Center" => text.align_center
+        "Right"  => text.align_right
+        => text.align_center
+
+// ─── Render HUD Table ───
+var table hud = table.new(
+     position     = get_pos(pos_input), 
+     columns      = 1, 
+     rows         = 4, 
+     bgcolor      = bg_color, 
+     border_color = border_color, 
+     border_width = border_width,
+     frame_color  = border_color,
+     frame_width  = border_width)
+
+if barstate.islast
+    t_size  = get_size(txt_size_input)
+    t_align = get_align(txt_align_input)
+    
+    if show_r1 and str.length(text_r1) > 0
+        table.cell(hud, 0, 0, text_r1, text_color=col_r1, text_size=t_size, text_halign=t_align, text_font_family=font.family_monospace)
+    else
+        table.clear(hud, 0, 0, 0, 0)
+        
+    if show_r2 and str.length(text_r2) > 0
+        table.cell(hud, 0, 1, text_r2, text_color=col_r2, text_size=t_size, text_halign=t_align, text_font_family=font.family_monospace)
+    else
+        table.clear(hud, 0, 1, 0, 1)
+
+    if show_r3 and str.length(text_r3) > 0
+        table.cell(hud, 0, 2, text_r3, text_color=col_r3, text_size=t_size, text_halign=t_align, text_font_family=font.family_monospace)
+    else
+        table.clear(hud, 0, 2, 0, 2)
+
+    if show_r4 and str.length(text_r4) > 0
+        table.cell(hud, 0, 3, text_r4, text_color=col_r4, text_size=t_size, text_halign=t_align, text_font_family=font.family_monospace)
+    else
+        table.clear(hud, 0, 3, 0, 3)
